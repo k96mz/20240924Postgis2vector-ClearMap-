@@ -139,7 +139,7 @@ const dumpAndModify = async (relation, downstream, moduleKey) => {
         reject(e);
       }
       await client.query(`COMMIT`);
-      console.log(`${iso()}: finished ${relation} of Area ${moduleKey}`);
+      console.log(` ${iso()}: finished ${relation} of Area ${moduleKey}`);
       winston.info(`${iso()}: finished ${relation} of ${moduleKey}`);
       release();
       resolve();

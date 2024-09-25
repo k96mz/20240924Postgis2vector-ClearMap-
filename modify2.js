@@ -9,7 +9,8 @@ const preProcess = (f) => {
 
 const postProcess = (f) => {
   delete f.properties["_database"];
-  delete f.properties["_view"];
+  // delete f.properties["_view"];
+  delete f.properties["_table"];
   return f;
 };
 
