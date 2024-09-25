@@ -1,0 +1,23 @@
+{
+  "name": "20240924postgis2vector_clearmap",
+  "version": "1.0.0",
+  "description": "ClearMap Vector creation from PostGIS server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "k96mz",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "better-queue": "^3.8.12",
+    "child_process": "^1.0.2",
+    "cli-spinner": "^0.2.10",
+    "config": "^3.3.12",
+    "hh-mm-ss": "^1.2.0",
+    "hjson": "^3.2.2",
+    "pg": "^8.13.0",
+    "prettysize": "^2.0.0",
+    "winston": "^3.14.2",
+    "winston-daily-rotate-file": "^5.0.0"
+  }
+}

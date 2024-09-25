@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "logDir/.63546c9dea653b2233400c0d184a5237dbcf7755-audit.json",
+    "files": [
+        {
+            "date": 1727215502404,
+            "name": "logDir/produce-clearmap-2024-09-24.log",
+            "hash": "cce701f5fab0aab5f66de6820b5dffdecbe78fc56ccd4fb251b340aaa18508f2"
+        }
+    ],
+    "hashType": "sha256"
+}

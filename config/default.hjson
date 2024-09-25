@@ -1,0 +1,20 @@
+
+{
+    relations: [
+      sdb_course::public::baea_nests
+      sdb_course::public::linear_projects
+    ]
+    connection:{
+        sdb_course:{
+            host: localhost
+            port: 5432
+            dbUser: postgres
+            dbPassword: postgres
+        }
+    }
+    spinnerString: 1
+    fetchSize: 10
+    pmtilesDir: pmtiles
+    logDir: log
+    tippecanoePath: tippecanoe
+}
