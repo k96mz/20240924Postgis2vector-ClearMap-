@@ -1,35 +1,35 @@
 // libraries
-const config = require("config");
-const { spawn } = require("child_process");
-const fs = require("fs");
-const Queue = require("better-queue");
-const pretty = require("prettysize");
-const TimeFormat = require("hh-mm-ss");
-const { Pool, Query } = require("pg");
-const Spinner = require("cli-spinner").Spinner;
-const winston = require("winston");
-const DailyRotateFile = require("winston-daily-rotate-file");
-const modify = require("./modify2.js");
+const config = require('config');
+const { spawn } = require('child_process');
+const fs = require('fs');
+const Queue = require('better-queue');
+const pretty = require('prettysize');
+const TimeFormat = require('hh-mm-ss');
+const { Pool, Query } = require('pg');
+const Spinner = require('cli-spinner').Spinner;
+const winston = require('winston');
+const DailyRotateFile = require('winston-daily-rotate-file');
+const modify = require('./modify2.js');
 
 // config constants
-const relations = config.get("relations");
-const pmtilesDir = config.get("pmtilesDir");
-const logDir = config.get("logDir");
-const spinnerString = config.get("spinnerString");
-const fetchSize = config.get("fetchSize");
-const tippecanoePath = config.get("tippecanoePath");
+const relations = config.get('relations');
+const pmtilesDir = config.get('pmtilesDir');
+const logDir = config.get('logDir');
+const spinnerString = config.get('spinnerString');
+const fetchSize = config.get('fetchSize');
+const tippecanoePath = config.get('tippecanoePath');
 
 // global configurations
 Spinner.setDefaultSpinnerString(spinnerString);
 winston.configure({
-  level: "silly",
+  level: 'silly',
   format: winston.format.simple(),
   transports: [
     new DailyRotateFile({
       filename: `${logDir}/produce-clearmap-%DATE%.log`,
-      datePattern: "YYYY-MM-DD",
-      maxSize: "20m",
-      maxFiles: "14d",
+      datePattern: 'YYYY-MM-DD',
+      maxSize: '20m',
+      maxFiles: '14d',
     }),
   ],
 });
@@ -50,11 +50,11 @@ const iso = () => {
 };
 
 const noPressureWrite = (downstream, f) => {
-  return new Promise((res) => {
+  return new Promise(res => {
     if (downstream.write(`\x1e${JSON.stringify(f)}\n`)) {
       res();
     } else {
-      downstream.once("drain", () => {
+      downstream.once('drain', () => {
         res();
       });
     }
@@ -67,9 +67,9 @@ const fetch = (client, database, schema, table, downstream) => {
     let features = [];
     client
       .query(new Query(`FETCH ${fetchSize} FROM cur`))
-      .on("row", (row) => {
+      .on('row', row => {
         let f = {
-          type: "Feature",
+          type: 'Feature',
           properties: row,
           geometry: JSON.parse(row.st_asgeojson),
         };
@@ -81,11 +81,11 @@ const fetch = (client, database, schema, table, downstream) => {
         f = modify(f);
         if (f) features.push(f);
       })
-      .on("error", (err) => {
+      .on('error', err => {
         console.error(err.stack);
         reject();
       })
-      .on("end", async () => {
+      .on('end', async () => {
         for (f of features) {
           try {
             await noPressureWrite(downstream, f);
@@ -100,7 +100,7 @@ const fetch = (client, database, schema, table, downstream) => {
 
 const dumpAndModify = async (relation, downstream, moduleKey) => {
   return new Promise((resolve, reject) => {
-    const [database, schema, table] = relation.split("::");
+    const [database, schema, table] = relation.split('::');
     if (!pools[database]) {
       pools[database] = new Pool({
         host: config.get(`connection.${database}.host`),
@@ -114,14 +114,14 @@ const dumpAndModify = async (relation, downstream, moduleKey) => {
       if (err) throw err;
       let sql = `SELECT column_name FROM information_schema.columns WHERE table_name='${table}' AND table_schema='${schema}' ORDER BY ordinal_position`;
       let cols = await client.query(sql);
-      cols = cols.rows.map((r) => r.column_name).filter((r) => r !== "geom");
+      cols = cols.rows.map(r => r.column_name).filter(r => r !== 'geom');
       //cols = cols.filter(v => !propertyBlacklist.includes(v))
       //test--------------------------
-      if (table == "unmap_wbya10_a") {
+      if (table == 'unmap_wbya10_a') {
         cols.push(`ST_Area(${schema}.${table}.geom) AS areacalc`);
         cols.push(`ST_Length(${schema}.${table}.geom) AS lengthcalc`);
       }
-      if (table == "unmap_dral10_l") {
+      if (table == 'unmap_dral10_l') {
         cols.push(`ST_Length(${schema}.${table}.geom) AS lengthcalc`);
       }
       //until here--------------------
@@ -147,7 +147,7 @@ const dumpAndModify = async (relation, downstream, moduleKey) => {
   });
 };
 
-const sleep = (wait) => {
+const sleep = wait => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       resolve();
@@ -163,39 +163,39 @@ const queue = new Queue(
     const dstPath = `${pmtilesDir}/${moduleKey}.pmtiles`;
 
     moduleKeysInProgress.push(moduleKey);
-    productionSpinner.setSpinnerTitle(moduleKeysInProgress.join(", "));
+    productionSpinner.setSpinnerTitle(moduleKeysInProgress.join(', '));
 
     const tippecanoe = spawn(
       tippecanoePath,
       [
-        "--quiet",
-        "--no-feature-limit",
-        "--no-tile-size-limit",
-        "--force",
-        "--simplification=2",
-        "--drop-rate=1",
-        "--minimum-zoom=0",
-        "--maximum-zoom=5",
-        "--base-zoom=5",
-        "--hilbert",
+        '--quiet',
+        '--no-feature-limit',
+        '--no-tile-size-limit',
+        '--force',
+        '--simplification=2',
+        '--drop-rate=1',
+        '--minimum-zoom=0',
+        '--maximum-zoom=5',
+        '--base-zoom=5',
+        '--hilbert',
         `--output=${tmpPath}`,
       ],
-      { stdio: ["pipe", "inherit", "inherit"] }
+      { stdio: ['pipe', 'inherit', 'inherit'] }
     );
-    tippecanoe.on("exit", () => {
+    tippecanoe.on('exit', () => {
       fs.renameSync(tmpPath, dstPath);
       moduleKeysInProgress = moduleKeysInProgress.filter(
-        (v) => !(v === moduleKey)
+        v => !(v === moduleKey)
       );
       productionSpinner.stop();
-      process.stdout.write("\n");
+      process.stdout.write('\n');
       const logString = `${iso()}: process ${moduleKey} (${pretty(
         fs.statSync(dstPath).size
       )}) took ${TimeFormat.fromMs(new Date() - startTime)} .`;
       winston.info(logString);
       console.log(logString);
       if (moduleKeysInProgress.length !== 0) {
-        productionSpinner.setSpinnerTitle("0-0-0");
+        productionSpinner.setSpinnerTitle('0-0-0');
         productionSpinner.start();
       }
       return cb();
@@ -225,7 +225,7 @@ const queue = new Queue(
 
 // push queue
 const queueTasks = () => {
-  for (let moduleKey of ["0-0-0"]) {
+  for (let moduleKey of ['0-0-0']) {
     // For global, only one push!
     queue.push({
       moduleKey: moduleKey,
@@ -236,14 +236,14 @@ const queueTasks = () => {
 // shutdown system
 const shutdown = () => {
   winston.info(`${iso()}: production system shutdown.`);
-  console.log("** production system for clearmap shutdown! **");
+  console.log('** production system for clearmap shutdown! **');
 };
 
 // main
 const main = async () => {
   winston.info(`${iso()}: clearmap production started.`);
   queueTasks();
-  queue.on("drain", () => {
+  queue.on('drain', () => {
     shutdown();
   });
 };

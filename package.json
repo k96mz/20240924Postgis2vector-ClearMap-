@@ -16,6 +16,7 @@
     "hh-mm-ss": "^1.2.0",
     "hjson": "^3.2.2",
     "pg": "^8.13.0",
+    "pg-cursor": "^2.12.0",
     "prettysize": "^2.0.0",
     "winston": "^3.14.2",
     "winston-daily-rotate-file": "^5.0.0"

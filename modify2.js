@@ -1,32 +1,32 @@
-const preProcess = (f) => {
+const preProcess = f => {
   f.tippecanoe = {
-    layer: "other",
+    layer: 'other',
     minzoom: 15,
     maxzoom: 15,
   };
   return f;
 };
 
-const postProcess = (f) => {
-  delete f.properties["_database"];
+const postProcess = f => {
+  delete f.properties['_database'];
   // delete f.properties["_view"];
-  delete f.properties["_table"];
+  delete f.properties['_table'];
   return f;
 };
 
 const layerEdit = {
-  baea_nests: (f) => {
+  baea_nests: f => {
     f.tippecanoe = {
-      layer: "testLayer1-point",
+      layer: 'testLayer1-point',
       minzoom: 3,
       maxzoom: 6,
     };
     //write someting to adjust properties, if needed
     return f;
   },
-  linear_projects: (f) => {
+  linear_projects: f => {
     f.tippecanoe = {
-      layer: "testLayer2-line",
+      layer: 'testLayer2-line',
       minzoom: 4,
       maxzoom: 5,
     };
@@ -35,7 +35,7 @@ const layerEdit = {
   },
 };
 
-module.exports = (f) => {
+module.exports = f => {
   // return postProcess(layerEdit[f.properties._view](preProcess(f)));
   return postProcess(layerEdit[f.properties._table](preProcess(f)));
 };
