@@ -65,6 +65,7 @@ const fetch = async (database, schema, table, cursor, downstream) => {
       return 0;
     }
 
+    // console.time(`features time at ${table}: `);
     const features = rows.map(row => {
       let f = {
         type: 'Feature',
@@ -79,7 +80,9 @@ const fetch = async (database, schema, table, cursor, downstream) => {
       f = modify(f);
       return f;
     });
+    // console.timeEnd(`features time at ${table}: `);
 
+    // console.time(`noPressureWrite time at ${table}: `);
     for (const f of features) {
       try {
         // console.log(f);
@@ -88,6 +91,8 @@ const fetch = async (database, schema, table, cursor, downstream) => {
         throw err;
       }
     }
+    // console.timeEnd(`noPressureWrite time at ${table}: `);
+
     return rows.length;
   } catch (err) {
     // schemaの記載を追記
